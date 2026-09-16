@@ -1,0 +1,123 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trackers Hub</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'style.css' %}">
+</head>
+<body>
+
+    <header class="top-header">
+        <div class="brand">
+            <i class="fas fa-layer-group brand-icon"></i>
+            <span>Trackers Hub</span>
+        </div>
+        <div class="header-actions">
+            <div class="search-bar">
+                <i class="fas fa-search"></i>
+                <input type="text" id="searchInput" placeholder="Search trackers..." onkeyup="filterCards()">
+            </div>
+            <button class="theme-toggle" onclick="toggleTheme()" aria-label="Toggle Theme">
+                <i class="fas fa-moon" id="themeIcon"></i>
+            </button>
+            <img src="https://ui-avatars.com/api/?name={{ request.user.username|default:'User' }}&background=6366f1&color=fff" class="profile-img" alt="Profile">
+        </div>
+    </header>
+
+    <main class="main-content">
+        <div class="workspace-header">
+            <h1 class="workspace-title">All Trackers</h1>
+            <span class="tracker-count" id="trackerCount">{{ appli|length }} Tracker{{ appli|length|pluralize }}</span>
+        </div>
+
+        <div class="modules-grid" id="modulesGrid">
+            {% for app in appli %}
+            <a href="app/{{app}}" 
+               class="tracker-card" 
+               data-title="{{ app }}">
+                <div class="card-title">{{ app|slice:"0:14"}}</div>
+                <div class="card-footer">
+                    <i class="fas fa-arrow-right card-arrow"></i>
+                </div>
+            </a>
+            {% empty %}
+            <p class="no-data">No trackers found.</p>
+            {% endfor %}
+        </div>
+    </main>
+
+    <script>
+        // Curated Soft Pastel Glassmorphism Palette
+        const pastelPalette = [
+            { bg: "rgba(99, 102, 241, 0.08)", border: "rgba(99, 102, 241, 0.25)", borderHover: "rgba(99, 102, 241, 0.6)", shadow: "rgba(99, 102, 241, 0.25)" },
+            { bg: "rgba(236, 72, 153, 0.08)", border: "rgba(236, 72, 153, 0.25)", borderHover: "rgba(236, 72, 153, 0.6)", shadow: "rgba(236, 72, 153, 0.25)" },
+            { bg: "rgba(16, 185, 129, 0.08)", border: "rgba(16, 185, 129, 0.25)", borderHover: "rgba(16, 185, 129, 0.6)", shadow: "rgba(16, 185, 129, 0.25)" },
+            { bg: "rgba(245, 158, 11, 0.08)", border: "rgba(245, 158, 11, 0.25)", borderHover: "rgba(245, 158, 11, 0.6)", shadow: "rgba(245, 158, 11, 0.25)" },
+            { bg: "rgba(139, 92, 246, 0.08)", border: "rgba(139, 92, 246, 0.25)", borderHover: "rgba(139, 92, 246, 0.6)", shadow: "rgba(139, 92, 246, 0.25)" },
+            { bg: "rgba(14, 165, 233, 0.08)", border: "rgba(14, 165, 233, 0.25)", borderHover: "rgba(14, 165, 233, 0.6)", shadow: "rgba(14, 165, 233, 0.25)" },
+            { bg: "rgba(20, 184, 166, 0.08)", border: "rgba(20, 184, 166, 0.25)", borderHover: "rgba(20, 184, 166, 0.6)", shadow: "rgba(20, 184, 166, 0.25)" },
+            { bg: "rgba(239, 68, 68, 0.08)",  border: "rgba(239, 68, 68, 0.25)",  borderHover: "rgba(239, 68, 68, 0.6)",  shadow: "rgba(239, 68, 68, 0.25)" },
+            { bg: "rgba(168, 85, 247, 0.08)", border: "rgba(168, 85, 247, 0.25)", borderHover: "rgba(168, 85, 247, 0.6)", shadow: "rgba(168, 85, 247, 0.25)" },
+            { bg: "rgba(132, 204, 22, 0.08)", border: "rgba(132, 204, 22, 0.25)", borderHover: "rgba(132, 204, 22, 0.6)", shadow: "rgba(132, 204, 22, 0.25)" }
+        ];
+
+        // Seeded string hasher for consistent title-to-color mapping
+        function getPastelColor(str) {
+            let hash = 0;
+            for (let i = 0; i < str.length; i++) {
+                hash = str.charCodeAt(i) + ((hash << 5) - hash);
+            }
+            return pastelPalette[Math.abs(hash) % pastelPalette.length];
+        }
+
+        // Apply glassmorphism styling to cards rendered by Django
+        function initializeCardStyles() {
+            document.querySelectorAll('.tracker-card').forEach(card => {
+                const title = card.dataset.title || '';
+                const colorScheme = getPastelColor(title);
+                card.style.setProperty('--card-bg', colorScheme.bg);
+                card.style.setProperty('--card-border', colorScheme.border);
+                card.style.setProperty('--card-border-hover', colorScheme.borderHover);
+                card.style.setProperty('--card-shadow', colorScheme.shadow);
+            });
+        }
+
+        // Client-side instant filter on Django DOM elements
+        function filterCards() {
+            const query = document.getElementById('searchInput').value.toLowerCase();
+            const cards = document.querySelectorAll('.tracker-card');
+            let visibleCount = 0;
+
+            cards.forEach(card => {
+                const title = card.dataset.title.toLowerCase();
+                if (title.includes(query)) {
+                    card.style.display = 'flex';
+                    visibleCount++;
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+
+            document.getElementById('trackerCount').innerText = `${visibleCount} Tracker${visibleCount !== 1 ? 's' : ''}`;
+        }
+
+        // Dark / Light Theme Toggle
+        function toggleTheme() {
+            const isLight = document.documentElement.classList.toggle('light-mode');
+            document.getElementById('themeIcon').className = isLight ? 'fas fa-sun' : 'fas fa-moon';
+            localStorage.setItem('theme', isLight ? 'light' : 'dark');
+        }
+
+        if (localStorage.getItem('theme') === 'light') {
+            document.documentElement.classList.add('light-mode');
+            document.getElementById('themeIcon').className = 'fas fa-sun';
+        }
+
+        document.addEventListener('DOMContentLoaded', initializeCardStyles);
+    </script>
+</body>
+</html>

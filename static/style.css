@@ -1,0 +1,531 @@
+/* ==========================================================================
+   1. CSS Variables & Base Styles
+   ========================================================================== */
+:root {
+    --bg-color: #0b0f19;
+    --card-bg-default: #1e293b;
+    --header-bg: rgba(15, 23, 42, 0.8);
+    --text-primary: #f8fafc;
+    --text-secondary: #94a3b8;
+    --accent-color: #6366f1; 
+    --border-color: rgba(255, 255, 255, 0.08);
+    --hover-shadow: rgba(0, 0, 0, 0.4);
+    --danger-color: #ef4444;
+    --success-color: #10b981;
+}
+
+:root.light-mode {
+    --bg-color: #f1f5f9;
+    --card-bg-default: #ffffff;
+    --header-bg: rgba(255, 255, 255, 0.8);
+    --text-primary: #0f172a;
+    --text-secondary: #64748b;
+    --accent-color: #4f46e5;
+    --border-color: rgba(0, 0, 0, 0.08);
+    --hover-shadow: rgba(99, 102, 241, 0.12);
+}
+
+* { 
+    margin: 0; 
+    padding: 0; 
+    box-sizing: border-box; 
+    font-family: 'Inter', sans-serif; 
+}
+
+body { 
+    background-color: var(--bg-color); 
+    color: var(--text-primary); 
+    min-height: 100vh; 
+    display: flex; 
+    flex-direction: column; 
+    transition: background-color 0.3s, color 0.3s; 
+}
+
+/* ==========================================================================
+   2. Header & Top Navigation (Shared)
+   ========================================================================== */
+.top-header {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background-color: var(--header-bg);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border-color);
+    padding: 16px 32px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+}
+
+.brand { 
+    display: flex; 
+    align-items: center; 
+    gap: 12px; 
+    font-size: 1.25rem; 
+    font-weight: 700; 
+    color: var(--text-primary); 
+}
+
+.brand-icon { 
+    font-size: 1.4rem; 
+    color: var(--accent-color); 
+}
+
+.back-btn { 
+    display: inline-flex; 
+    align-items: center; 
+    gap: 8px; 
+    text-decoration: none; 
+    color: var(--text-secondary); 
+    font-weight: 600; 
+    font-size: 0.95rem; 
+    transition: color 0.2s; 
+}
+
+.back-btn:hover { 
+    color: var(--accent-color); 
+}
+
+.header-title { 
+    font-size: 1.25rem; 
+    font-weight: 700; 
+    text-transform: capitalize; 
+}
+
+.header-actions { 
+    display: flex; 
+    align-items: center; 
+    gap: 16px; 
+}
+
+.search-bar { 
+    position: relative; 
+}
+
+.search-bar input { 
+    background: rgba(255, 255, 255, 0.05); 
+    border: 1px solid var(--border-color); 
+    color: var(--text-primary); 
+    padding: 10px 16px 10px 38px; 
+    border-radius: 10px; 
+    width: 240px; 
+    outline: none; 
+    transition: all 0.25s ease; 
+}
+
+.light-mode .search-bar input { 
+    background: rgba(0, 0, 0, 0.04); 
+}
+
+.search-bar input:focus { 
+    border-color: var(--accent-color); 
+    width: 280px; 
+}
+
+.search-bar i { 
+    position: absolute; 
+    left: 12px; 
+    top: 50%; 
+    transform: translateY(-50%); 
+    color: var(--text-secondary); 
+}
+
+.theme-toggle { 
+    background: rgba(255, 255, 255, 0.05); 
+    border: 1px solid var(--border-color); 
+    color: var(--text-primary); 
+    width: 40px; 
+    height: 40px; 
+    border-radius: 10px; 
+    cursor: pointer; 
+    transition: all 0.2s; 
+    display: flex; 
+    align-items: center; 
+    justify-content: center; 
+}
+
+.light-mode .theme-toggle { 
+    background: rgba(0, 0, 0, 0.04); 
+}
+
+.theme-toggle:hover { 
+    border-color: var(--accent-color); 
+    color: var(--accent-color); 
+}
+
+.profile-img { 
+    width: 40px; 
+    height: 40px; 
+    border-radius: 10px; 
+    border: 1px solid var(--border-color); 
+}
+
+/* Global Buttons */
+.btn {
+    background-color: var(--accent-color); 
+    color: white; 
+    border: none; 
+    padding: 10px 16px;
+    border-radius: 8px; 
+    font-weight: 600; 
+    cursor: pointer; 
+    transition: opacity 0.2s; 
+    display: flex; 
+    align-items: center; 
+    gap: 8px; 
+    font-size: 0.9rem;
+}
+
+.btn:hover { 
+    opacity: 0.9; 
+}
+
+.btn-secondary { 
+    background-color: transparent; 
+    border: 1px solid var(--border-color); 
+    color: var(--text-primary); 
+}
+
+.btn-secondary:hover { 
+    border-color: var(--accent-color); 
+    color: var(--accent-color); 
+}
+
+/* ==========================================================================
+   3. Main Workspace Layout (Shared)
+   ========================================================================== */
+.main-content { 
+    flex: 1; 
+    padding: 36px 32px; 
+    max-width: 1400px; 
+    width: 100%; 
+    margin: 0 auto; 
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+.workspace-header { 
+    display: flex; 
+    justify-content: space-between; 
+    align-items: center; 
+    margin-bottom: 4px; 
+}
+
+.workspace-title { 
+    font-size: 1.6rem; 
+    font-weight: 700; 
+    letter-spacing: -0.02em; 
+}
+
+.tracker-count { 
+    font-size: 0.88rem; 
+    color: var(--text-secondary); 
+    font-weight: 600; 
+}
+
+/* ==========================================================================
+   4. Index Page: Glassmorphism Cards Grid
+   ========================================================================== */
+.modules-grid { 
+    display: grid; 
+    grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); 
+    gap: 18px; 
+}
+
+.tracker-card { 
+    position: relative;
+    border-radius: 16px; 
+    padding: 24px 20px; 
+    cursor: pointer; 
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1); 
+    display: flex; 
+    flex-direction: column; 
+    justify-content:center;
+    align-items: center;
+    min-height: 110px;
+    text-decoration: none; 
+    color: var(--text-primary);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid var(--card-border, var(--border-color));
+    background: var(--card-bg, rgba(255, 255, 255, 0.03));
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+}
+
+.tracker-card:hover { 
+    transform: translateY(-5px) scale(1.015); 
+    border-color: var(--card-border-hover, var(--accent-color));
+    box-shadow: 0 14px 30px -10px var(--card-shadow, rgba(99, 102, 241, 0.3));
+}
+
+.card-title { 
+    font-size: 1.5rem; 
+    font-weight: 700;
+    margin-top: 1rem;
+    letter-spacing: -0.01em;
+    line-height: 1.35;
+}
+
+.card-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 16px;
+}
+
+.card-tag {
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    color: var(--text-secondary);
+    opacity: 0.8;
+}
+
+.card-arrow {
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+    opacity: 0;
+    transform: translateX(-6px);
+    transition: all 0.25s ease;
+}
+
+.tracker-card:hover .card-arrow {
+    opacity: 1;
+    transform: translateX(0);
+    color: var(--text-primary);
+}
+
+/* ==========================================================================
+   5. Subpage: Stats Grid & Data Table
+   ========================================================================== */
+.stats-grid { 
+    display: grid; 
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); 
+    gap: 16px; 
+}
+
+.stat-card { 
+    background: var(--card-bg-default); 
+    border: 1px solid var(--border-color); 
+    padding: 20px; 
+    border-radius: 12px; 
+}
+
+.stat-title { 
+    font-size: 0.85rem; 
+    color: var(--text-secondary); 
+    font-weight: 600; 
+    margin-bottom: 6px; 
+}
+
+.stat-value { 
+    font-size: 1.6rem; 
+    font-weight: 700; 
+}
+
+/* Data Table */
+.table-container { 
+    background: var(--card-bg-default); 
+    border: 1px solid var(--border-color); 
+    border-radius: 12px; 
+    overflow: hidden; 
+}
+
+.table-toolbar { 
+    padding: 16px 20px; 
+    border-bottom: 1px solid var(--border-color); 
+    display: flex; 
+    justify-content: space-between; 
+    align-items: center; 
+}
+
+table { 
+    width: 100%; 
+    border-collapse: collapse; 
+    text-align: left; 
+    font-size: 0.95rem; 
+}
+
+th, td { 
+    padding: 14px 20px; 
+    border-bottom: 1px solid var(--border-color); 
+}
+
+th { 
+    background: rgba(0, 0, 0, 0.02); 
+    color: var(--text-secondary); 
+    font-weight: 600; 
+    font-size: 0.85rem; 
+    text-transform: uppercase; 
+    letter-spacing: 0.5px; 
+}
+
+tr:last-child td { 
+    border-bottom: none; 
+}
+
+tr:hover td { 
+    background: rgba(99, 102, 241, 0.03); 
+}
+
+/* Badges & Actions */
+.badge-status { 
+    padding: 4px 10px; 
+    border-radius: 20px; 
+    font-size: 0.75rem; 
+    font-weight: 700; 
+    display: inline-block; 
+}
+
+.status-active { 
+    background: rgba(16, 185, 129, 0.15); 
+    color: var(--success-color); 
+}
+
+.status-pending { 
+    background: rgba(245, 158, 11, 0.15); 
+    color: #f59e0b; 
+}
+
+.action-icon { 
+    background: none; 
+    border: none; 
+    color: var(--text-secondary); 
+    cursor: pointer; 
+    font-size: 0.95rem; 
+    transition: color 0.2s; 
+    padding: 6px; 
+}
+
+.action-icon.edit-btn:hover { 
+    color: var(--accent-color); 
+}
+
+.action-icon.delete-btn:hover { 
+    color: var(--danger-color); 
+}
+
+/* ==========================================================================
+   6. Subpage: Modal Form Overlay
+   ========================================================================== */
+.modal-overlay {
+    position: fixed; 
+    top: 0; 
+    left: 0; 
+    width: 100vw; 
+    height: 100vh;
+    background: rgba(15, 23, 42, 0.7); 
+    backdrop-filter: blur(4px);
+    display: none; 
+    align-items: center; 
+    justify-content: center; 
+    z-index: 200;
+}
+
+.modal-overlay.active { 
+    display: flex; 
+}
+
+.modal { 
+    background: var(--card-bg-default); 
+    border: 1px solid var(--border-color); 
+    width: 100%; 
+    max-width: 450px; 
+    border-radius: 16px; 
+    padding: 24px; 
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5); 
+}
+
+.modal-header { 
+    font-size: 1.2rem; 
+    font-weight: 700; 
+    margin-bottom: 20px; 
+    display: flex; 
+    justify-content: space-between; 
+    align-items: center; 
+}
+
+.form-group { 
+    margin-bottom: 16px; 
+}
+
+.form-group label { 
+    display: block; 
+    font-size: 0.85rem; 
+    font-weight: 600; 
+    color: var(--text-secondary); 
+    margin-bottom: 6px; 
+}
+
+.form-group input, 
+.form-group select { 
+    width: 100%; 
+    padding: 10px 14px; 
+    background: var(--bg-color); 
+    border: 1px solid var(--border-color); 
+    color: var(--text-primary); 
+    border-radius: 8px; 
+    outline: none; 
+}
+
+.form-group input:focus, 
+.form-group select:focus { 
+    border-color: var(--accent-color); 
+}
+
+.modal-footer { 
+    display: flex; 
+    justify-content: flex-end; 
+    gap: 12px; 
+    margin-top: 24px; 
+}
+
+/* ==========================================================================
+   7. Mobile Responsiveness (Shared)
+   ========================================================================== */
+@media (max-width: 768px) {
+    .top-header { 
+        padding: 12px 16px; 
+    }
+
+    .main-content { 
+        padding: 20px 16px; 
+    }
+
+    .search-bar input { 
+        width: 140px; 
+    }
+
+    .search-bar input:focus { 
+        width: 180px; 
+    }
+
+    .brand span { 
+        display: none; 
+    }
+
+    .modules-grid { 
+        grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); 
+        gap: 12px; 
+    }
+
+    .tracker-card { 
+        padding: 16px 14px; 
+        min-height: 95px; 
+        border-radius: 12px; 
+    }
+
+    .card-title { 
+        font-size: 0.9rem; 
+    }
+
+    table { 
+        display: block; 
+        overflow-x: auto; 
+        white-space: nowrap; 
+    }
+}
