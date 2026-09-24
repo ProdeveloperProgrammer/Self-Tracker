@@ -25,11 +25,11 @@ class Certificate(models.Model):
             pass
         super().save(*args, **kwargs) 
 
-    def delete(self):
-        # Delete the file from storage when the model instance is deleted
+    def delete(self, *args, **kwargs):
+        # Delete the file from storage if it exists
         if self.Proof:
             self.Proof.delete(save=False)
-            super().delete()    
+        super().delete(*args, **kwargs)
 
     def __str__(self):
         return f'{self.Title} by {self.Provider}'
@@ -46,8 +46,7 @@ class MovieAndSeries(models.Model):
     User = models.ForeignKey(User,on_delete=models.CASCADE,verbose_name='User',editable=False)
 
     def __str__(self):
-       return self.Name 
-    
+        return self.Name
+
     class Meta:
         verbose_name_plural = "Movies and Series"
-   
