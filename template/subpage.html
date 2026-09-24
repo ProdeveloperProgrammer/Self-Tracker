@@ -241,18 +241,40 @@
 
                 <div class="form-grid">
                     {% for field in form %}
-                    <div class="form-group {% if field.field.widget.input_type == 'textarea' %}full-width{% endif %}">
-                        {{ field.label_tag }}
-                        {{ field }}
-                        {% if field.help_text %}
-                        <small class="help-text">{{ field.help_text }}</small>
+                        {% if field.field.widget.input_type == 'checkbox' %}
+                            <!-- Checkbox Field Layout -->
+                            <div class="form-group form-group-checkbox">
+                                {{ field }}
+                                {{ field.label_tag }}
+                                {% if field.errors %}
+                                    <div class="error-messages">{{ field.errors }}</div>
+                                {% endif %}
+                            </div>
+                        {% elif field.field.widget.recache_instance or field.field.widget.attrs.rows or 'textarea' in field.field.widget.template_name %}
+                            <!-- Textarea / Big Text Field Layout (Full-width) -->
+                            <div class="form-group full-width">
+                                {{ field.label_tag }}
+                                {{ field }}
+                                {% if field.help_text %}
+                                    <small class="help-text">{{ field.help_text }}</small>
+                                {% endif %}
+                                {% if field.errors %}
+                                    <div class="error-messages">{{ field.errors }}</div>
+                                {% endif %}
+                            </div>
+                        {% else %}
+                            <!-- Standard Input Field Layout -->
+                            <div class="form-group">
+                                {{ field.label_tag }}
+                                {{ field }}
+                                {% if field.help_text %}
+                                <small class="help-text">{{ field.help_text }}</small>
+                                {% endif %}
+                                {% if field.errors %}
+                                <div class="error-messages">{{ field.errors }}</div>
+                                {% endif %}
+                            </div>
                         {% endif %}
-                        {% if field.errors %}
-                        <div class="error-messages">
-                            {{ field.errors }}
-                        </div>
-                        {% endif %}
-                    </div>
                     {% endfor %}
                 </div>
 
