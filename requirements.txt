@@ -1,4 +1,4 @@
 django
-python-dotenv
+dotenv
 django-allauth
 whitenoise
