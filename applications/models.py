@@ -7,8 +7,8 @@ from django.contrib.auth.models import User
 
 #Please create user in of same type below
 class Certificate(models.Model):
-    Title = models.CharField(blank=False,name='Title',verbose_name='Title')
-    Provider = models.CharField(blank=False,name='Provider',verbose_name='Provider')
+    Title = models.CharField(blank=False,max_length=120,name='Title',verbose_name='Title')
+    Provider = models.CharField(blank=False,max_length=120,name='Provider',verbose_name='Provider')
     Date = models.DateField(blank=False,default=timezone.localdate,validators=[MaxValueValidator(timezone.localdate)],name='date_recieved',verbose_name="Date Recieved")
     Proof = models.FileField(upload_to="certificate/",name='Proof',verbose_name='Proof')
     User = models.ForeignKey(User,on_delete=models.CASCADE,verbose_name='User',editable=False)
@@ -38,9 +38,9 @@ class Certificate(models.Model):
         verbose_name = "Certificate"
 
 class MovieAndSeries(models.Model):
-    Name = models.CharField(blank=False,name='Name',verbose_name='Name')
-    Status = models.CharField(blank=False,choices={'Plan to watch':'Plan to watch','watching':'watching','completed':'completed'},name='Status',verbose_name='Status')
-    Content_type = models.CharField(blank=False,choices={'movie':'movie','show':'show'},name='Content_type',verbose_name='Content Type')
+    Name = models.CharField(blank=False,max_length=120,name='Name',verbose_name='Name')
+    Status = models.CharField(blank=False,max_length=120,choices={'Plan to watch':'Plan to watch','watching':'watching','completed':'completed'},name='Status',verbose_name='Status')
+    Content_type = models.CharField(blank=False,max_length=120,choices={'movie':'movie','show':'show'},name='Content_type',verbose_name='Content Type')
     Anime = models.BooleanField(name='Anime',verbose_name='Anime')
     Note = models.TextField(blank=True,name='Note',verbose_name='Note')
     User = models.ForeignKey(User,on_delete=models.CASCADE,verbose_name='User',editable=False)
