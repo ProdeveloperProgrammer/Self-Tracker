@@ -2,4 +2,7 @@
 *__pycache__
 /.git
 /test-extra
-/media/
+media/*
+*.sqlite3
+**/migrations/*
+!**/migrations/__init__.py
