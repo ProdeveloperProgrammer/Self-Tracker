@@ -1,0 +1,136 @@
+{% load i18n %}
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>
+        {% block head_title %}
+        {% endblock head_title %}
+    </title>
+
+    <!-- Inter Font -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Custom Stylesheet -->
+    <link rel="stylesheet" href={% static "style.css" %}>
+    <link rel="stylesheet" href={% static "login_base.css" %}>
+
+    {% block extra_head %}
+    {% endblock extra_head %}
+</head>
+
+<body class="app-container">
+    <header class="top-header">
+        <div class="brand">
+            <a href="{% url 'index' %}" class="back-btn">
+                <i class="fas fa-arrow-left"></i> Back to Hub
+            </a>
+        </div>
+
+        <h2 class="header-title">{{ model_name }}</h2>
+
+        <div class="header-actions">
+            <button class="theme-toggle" onclick="toggleTheme()" aria-label="Toggle Theme">
+                <i class="fas fa-moon" id="themeIcon"></i>
+            </button>
+            {% include "includes/user_dropdown.html" %}
+        </div>
+    </header>
+    {% block body %}
+    <!-- Main Workspace Area -->
+    <main class="main-content">
+
+        <!-- Messages Banner -->
+        {% if messages %}
+        <div class="alert-container">
+            {% for message in messages %}
+            <div class="alert-card {% if message.tags == 'error' %}error{% else %}success{% endif %}">
+                <span>{{ message }}</span>
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        <!-- 2-Column Responsive Layout -->
+        <div class="layout-grid {% if user.is_authenticated %}authenticated{% else %}unauthenticated{% endif %}">
+
+            <!-- Sidebar (Appears on the left when authenticated) -->
+            {% if user.is_authenticated %}
+            <aside>
+                <div class="aside-card">
+                    <span class="aside-title">{% trans "Account Settings" %}</span>
+                    <nav class="aside-nav">
+                        {% url 'account_email' as email_url_ %}
+                        {% if email_url_ %}
+                        <a href="{{ email_url_ }}" class="aside-link">📧 {% trans "Change Email" %}</a>
+                        {% endif %}
+
+                        {% url 'account_change_password' as change_password_url_ %}
+                        {% if change_password_url_ %}
+                        <a href="{{ change_password_url_ }}" class="aside-link">🔑 {% trans "Change Password" %}</a>
+                        {% endif %}
+
+                        {% url 'socialaccount_connections' as connections_url_ %}
+                        {% if connections_url_ %}
+                        <a href="{{ connections_url_ }}" class="aside-link">🔗 {% trans "Connections" %}</a>
+                        {% endif %}
+
+                        {% url 'mfa_index' as mfa_url_ %}
+                        {% if mfa_url_ %}
+                        <a href="{{ mfa_url_ }}" class="aside-link">🛡️ {% trans "Two-Factor Auth" %}</a>
+                        {% endif %}
+
+                        {% url 'usersessions_list' as usersessions_list_url_ %}
+                        {% if usersessions_list_url_ %}
+                        <a href="{{ usersessions_list_url_ }}" class="aside-link">💻 {% trans "Sessions" %}</a>
+                        {% endif %}
+
+                        {% url 'account_logout' as logout_url_ %}
+                        {% if logout_url_ %}
+                        <div
+                            style="margin-top: 8px; padding-top: 8px; border-top: 1px solid var(--border-color); width: 100%;">
+                            <a href="{{ logout_url_ }}" class="aside-link logout">🚪 {% trans "Sign Out" %}</a>
+                        </div>
+                        {% endif %}
+                    </nav>
+                </div>
+            </aside>
+            {% endif %}
+
+            <!-- Main Content Area -->
+            <section>
+                <div class="content-card">
+                    {% block content %}
+                    {% endblock content %}
+                </div>
+            </section>
+
+        </div>
+
+    </main>
+    {% endblock body %}
+
+    {% block extra_body %}
+    {% endblock extra_body %}
+</body>
+    <script>
+        // Dark / Light Theme Toggle
+        function toggleTheme() {
+            const isLight = document.documentElement.classList.toggle('light-mode');
+            document.getElementById('themeIcon').className = isLight ? 'fas fa-sun' : 'fas fa-moon';
+            localStorage.setItem('theme', isLight ? 'light' : 'dark');
+        }
+
+        if (localStorage.getItem('theme') === 'light') {
+            document.documentElement.classList.add('light-mode');
+            document.getElementById('themeIcon').className = 'fas fa-sun';
+        }
+    </script>
+</html>

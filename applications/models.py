@@ -1,14 +1,17 @@
 from django.db import models
 from django.core.validators import *
 from django.utils import timezone
-import uuid
+from django.contrib.auth.models import User
 
 # Create your models here.
+
+#Please create user in of same type below
 class Certificate(models.Model):
     Title = models.CharField(blank=False,name='Title',verbose_name='Title')
     Provider = models.CharField(blank=False,name='Provider',verbose_name='Provider')
-    Date = models.DateField(blank=False,default=timezone.localdate(),validators=[MaxValueValidator(timezone.localdate())],name='date_recieved',verbose_name="Date Recieved")
+    Date = models.DateField(blank=False,default=timezone.localdate,validators=[MaxValueValidator(timezone.localdate)],name='date_recieved',verbose_name="Date Recieved")
     Proof = models.FileField(upload_to="certificate/",name='Proof',verbose_name='Proof')
+    User = models.ForeignKey(User,on_delete=models.CASCADE,verbose_name='User',editable=False)
 
     def save(self, *args, **kwargs):
     # Check if the instance already exists in the database (an update, not a creation)
@@ -40,6 +43,7 @@ class MovieAndSeries(models.Model):
     Content_type = models.CharField(blank=False,choices={'movie':'movie','show':'show'},name='Content_type',verbose_name='Content Type')
     Anime = models.BooleanField(name='Anime',verbose_name='Anime')
     Note = models.TextField(blank=True,name='Note',verbose_name='Note')
+    User = models.ForeignKey(User,on_delete=models.CASCADE,verbose_name='User',editable=False)
 
     def __str__(self):
        return self.Name 
