@@ -1,10 +1,7 @@
 from django.shortcuts import render, redirect,get_object_or_404
-from django.core.serializers import serialize
 from django.apps import apps
 from .models import *
 from django import forms, http
-from django.forms.models import model_to_dict
-import json
 # Create your views here.
 
 
@@ -35,21 +32,24 @@ def GeneralModelView(request, model_name):
     if request.method == 'GET':
         form = DynamicForm()
         fields_name_to_show = [field.verbose_name for field in MyModel._meta.fields] # getting the fields of mdodel
-
+        fields_name_to_show.remove('User')
         context = {
             "model_name": model_name,
             "form":form,
             "fields":fields_name_to_show,
         }
 
-        TotalData = MyModel.objects.all().order_by('-id')
-        context['rows'] = list(TotalData.values_list())
+        TotalData = MyModel.objects.filter(User=request.user).order_by('-id')
+        context['rows'] = [row[:-1] for row in TotalData.values_list()]
         return render(request, 'subpage.html', context=context)
     elif request.method == 'POST':
         # Bind the POST data (and FILES if your model handles images/files)
         form = DynamicForm(request.POST, request.FILES)
         if form.is_valid():
-            form.save()
+            inst = form.save(commit=False)
+            inst.User = request.user
+            inst.save()
+            form.save_m2m()
             return redirect('indvi_models',model_name=model_name)
         else:
             return http.HttpResponse("Error")

@@ -146,8 +146,7 @@
             <button class="theme-toggle" onclick="toggleTheme()" aria-label="Toggle Theme">
                 <i class="fas fa-moon" id="themeIcon"></i>
             </button>
-            <img src="https://ui-avatars.com/api/?name={{ request.user.username|default:'User' }}&background=6366f1&color=fff"
-                class="profile-img" alt="Profile">
+            {% include "includes/user_dropdown.html" %}
         </div>
     </header>
 

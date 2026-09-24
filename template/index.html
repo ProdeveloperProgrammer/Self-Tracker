@@ -1,4 +1,5 @@
 {% load static %}
+{% load i18n %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -24,7 +25,8 @@
             <button class="theme-toggle" onclick="toggleTheme()" aria-label="Toggle Theme">
                 <i class="fas fa-moon" id="themeIcon"></i>
             </button>
-            <img src="https://ui-avatars.com/api/?name={{ request.user.username|default:'User' }}&background=6366f1&color=fff" class="profile-img" alt="Profile">
+
+            {% include "includes/user_dropdown.html" %}
         </div>
     </header>
 
@@ -51,6 +53,21 @@
     </main>
 
     <script>
+        // Toggle User Dropdown
+        function toggleUserDropdown(event) {
+            event.stopPropagation();
+            const container = document.getElementById('userDropdown');
+            container.classList.toggle('active');
+        }
+
+        // Close Dropdown when clicking outside
+        window.addEventListener('click', function(e) {
+            const container = document.getElementById('userDropdown');
+            if (container && !container.contains(e.target)) {
+                container.classList.remove('active');
+            }
+        });
+
         // Curated Soft Pastel Glassmorphism Palette
         const pastelPalette = [
             { bg: "rgba(99, 102, 241, 0.08)", border: "rgba(99, 102, 241, 0.25)", borderHover: "rgba(99, 102, 241, 0.6)", shadow: "rgba(99, 102, 241, 0.25)" },
