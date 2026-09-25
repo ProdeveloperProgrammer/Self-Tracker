@@ -27,7 +27,15 @@ def GeneralModelView(request, model_name):
         raise http.Http404("Model does not exist")
 
     # Loading the Form for making new / updating previous
-    DynamicForm = forms.modelform_factory(MyModel, fields='__all__')
+    def html5_input_callback(db_field, **kwargs):
+        if isinstance(db_field, models.TimeField):
+            kwargs['widget'] = forms.TimeInput(attrs={'type': 'time'}, format='%H:%M')
+        elif isinstance(db_field, models.DateField):
+            kwargs['widget'] = forms.DateInput(attrs={'type': 'date'}, format='%Y-%m-%d')
+        elif isinstance(db_field, models.DateTimeField):
+            kwargs['widget'] = forms.DateTimeInput(attrs={'type': 'datetime-local'}, format='%Y-%m-%dT%H:%M')
+        return db_field.formfield(**kwargs)
+    DynamicForm = forms.modelform_factory(MyModel, fields='__all__',formfield_callback=html5_input_callback)
 
     if request.method == 'GET':
         form = DynamicForm()
