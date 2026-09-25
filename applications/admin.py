@@ -3,6 +3,8 @@ from .models import *
 # Register your models here.
 
 admin.site.register(MovieAndSeries)
+admin.site.register(DailyJournel)
+admin.site.register(SiteDiscovery)
 
 @admin.register(Certificate)
 class CertificateAdmin(admin.ModelAdmin):

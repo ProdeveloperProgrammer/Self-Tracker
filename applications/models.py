@@ -5,7 +5,7 @@ from django.contrib.auth.models import User
 
 # Create your models here.
 
-#Please create user in of same type below
+#Please create user in all as of same type below with each field with thier verbose_name
 class Certificate(models.Model):
     Title = models.CharField(blank=False,max_length=120,name='Title',verbose_name='Title')
     Provider = models.CharField(blank=False,max_length=120,name='Provider',verbose_name='Provider')
@@ -50,3 +50,29 @@ class MovieAndSeries(models.Model):
 
     class Meta:
         verbose_name_plural = "Movies and Series"
+
+class DailyJournel(models.Model):
+    Date = models.DateField(default=timezone.localdate,validators=[MaxValueValidator(timezone.localdate)],verbose_name='Date')
+    Time = models.TimeField(default=timezone.localtime,verbose_name='Time')
+    One_word_to_describe_the_day = models.CharField(blank=False, max_length=50,verbose_name="One word to describe the day")
+    Journel = models.TextField(blank=False,verbose_name='Journel')
+    User = models.ForeignKey(User,on_delete=models.CASCADE,verbose_name='User',editable=False)
+    def __str__(self):
+        return self.Date 
+    
+    class Meta:
+        verbose_name_plural = "Daily Journels"
+
+class SiteDiscovery(models.Model):
+    Title = models.CharField(max_length=200,blank=False,verbose_name='Site Name')
+    Site_url = models.URLField(max_length=1000,blank=False, unique=True,verbose_name='Site URL')
+    description = models.TextField(blank=True,verbose_name='Description')
+    discovered_on = models.DateField(default=timezone.localdate,validators=[MaxValueValidator(timezone.localdate)],verbose_name='Discovered On')
+    User = models.ForeignKey(User,on_delete=models.CASCADE,verbose_name='User',editable=False)
+
+    def __str__(self):
+        return self.Title 
+    
+    class Meta:
+        verbose_name_plural = "Sites Discovery"
+    
