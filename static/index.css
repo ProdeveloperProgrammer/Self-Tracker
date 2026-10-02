@@ -1,0 +1,105 @@
+/* Index page (Trackers Hub) — loaded after style.css */
+
+.workspace-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 4px;
+}
+
+.workspace-title {
+    font-size: 1.6rem;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+}
+
+.tracker-count {
+    font-size: 0.88rem;
+    color: var(--text-secondary);
+    font-weight: 600;
+}
+
+.modules-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+    gap: 18px;
+}
+
+/* --c is set per card from JS (space-separated r g b); without JS the fallbacks apply */
+.tracker-card {
+    --card-bg: rgb(var(--c) / 0.08);
+    --card-border: rgb(var(--c) / 0.25);
+    --card-border-hover: rgb(var(--c) / 0.6);
+    --card-shadow: rgb(var(--c) / 0.25);
+
+    position: relative;
+    border-radius: 16px;
+    padding: 24px 20px;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    min-height: 110px;
+    text-decoration: none;
+    color: var(--text-primary);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid var(--card-border, var(--border-color));
+    background: var(--card-bg, rgba(255, 255, 255, 0.03));
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+    transition-property: transform, border-color, box-shadow, color;
+    transition-duration: 0.3s;
+    transition-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.tracker-card:hover {
+    transform: translateY(-5px) scale(1.015);
+    border-color: var(--card-border-hover, var(--accent-color));
+    box-shadow: 0 14px 30px -10px var(--card-shadow, rgba(99, 102, 241, 0.3));
+}
+
+.card-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin-top: 1rem;
+    letter-spacing: -0.01em;
+    line-height: 1.35;
+}
+
+.card-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 16px;
+}
+
+.card-arrow {
+    width: 0.8rem;
+    height: 0.8rem;
+    color: var(--text-secondary);
+    opacity: 0;
+    transform: translateX(-6px);
+    transition: opacity 0.25s ease, transform 0.25s ease, color 0.25s ease;
+}
+
+.tracker-card:hover .card-arrow {
+    opacity: 1;
+    transform: translateX(0);
+    color: var(--text-primary);
+}
+
+@media (max-width: 768px) {
+    .modules-grid {
+        grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+        gap: 12px;
+    }
+
+    .tracker-card {
+        padding: 16px 14px;
+        min-height: 95px;
+        border-radius: 12px;
+    }
+
+    .card-title { font-size: 0.9rem; }
+}

@@ -12,25 +12,23 @@
         {% endblock head_title %}
     </title>
 
-    <!-- Inter Font -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-
-    <!-- Custom Stylesheet -->
-    <link rel="stylesheet" href={% static "style.css" %}>
-    <link rel="stylesheet" href={% static "login_base.css" %}>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400..800&display=swap">
+    <link rel="stylesheet" href="{% static 'style.css' %}">
+    <link rel="stylesheet" href="{% static 'login_base.css' %}">
+    <script src="{% static 'app.js' %}"></script>
 
     {% block extra_head %}
     {% endblock extra_head %}
 </head>
 
 <body class="app-container">
+    {% include "includes/icons.html" %}
     <header class="top-header">
         <div class="brand">
             <a href="{% url 'index' %}" class="back-btn">
-                <i class="fas fa-arrow-left"></i> Back to Hub
+                <svg class="icon"><use href="#i-arrow-left"/></svg> Back to Hub
             </a>
         </div>
 
@@ -38,7 +36,7 @@
 
         <div class="header-actions">
             <button class="theme-toggle" onclick="toggleTheme()" aria-label="Toggle Theme">
-                <i class="fas fa-moon" id="themeIcon"></i>
+                <svg class="icon"><use id="themeIcon" href="#i-moon"/></svg>
             </button>
             {% include "includes/user_dropdown.html" %}
         </div>
@@ -47,17 +45,7 @@
     <!-- Main Workspace Area -->
     <main class="main-content">
 
-        <!-- Messages Banner -->
-        {% if messages %}
-        <div class="alert-container">
-            {% for message in messages %}
-            <div class="alert-card {% if message.tags == 'error' %}error{% else %}success{% endif %}">
-                <span>{{ message }}</span>
-            </div>
-            {% endfor %}
-        </div>
-        {% endif %}
-
+        {% include "includes/messages.html" %}
         <!-- 2-Column Responsive Layout -->
         <div class="layout-grid {% if user.is_authenticated %}authenticated{% else %}unauthenticated{% endif %}">
 
@@ -120,17 +108,4 @@
     {% block extra_body %}
     {% endblock extra_body %}
 </body>
-    <script>
-        // Dark / Light Theme Toggle
-        function toggleTheme() {
-            const isLight = document.documentElement.classList.toggle('light-mode');
-            document.getElementById('themeIcon').className = isLight ? 'fas fa-sun' : 'fas fa-moon';
-            localStorage.setItem('theme', isLight ? 'light' : 'dark');
-        }
-
-        if (localStorage.getItem('theme') === 'light') {
-            document.documentElement.classList.add('light-mode');
-            document.getElementById('themeIcon').className = 'fas fa-sun';
-        }
-    </script>
 </html>

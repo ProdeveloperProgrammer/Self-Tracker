@@ -1,0 +1,63 @@
+{% load static %}
+{% comment %}
+    Add / edit popup used by subpage.html AND finance.html.
+    Context needed (same as subpage): form, model_name, MEDIA_URL, show_modal, is_editing.
+    Open it with openCreateModal() / openEditModal(row, id, name) / openEditModalWithValues(id, name, values).
+{% endcomment %}
+<div class="modal-overlay" id="modalOverlay">
+    <div class="modal-fullscreen">
+        <div class="modal-header">
+            <h2 id="modalTitle">Add New Entry</h2>
+            <button class="close-btn" type="button" onclick="closeModal()" aria-label="Close Modal">
+                <svg class="icon"><use href="#i-x"/></svg>
+            </button>
+        </div>
+        <form method="POST" action="" id="recordForm" enctype="multipart/form-data">
+            {% csrf_token %}
+            <input type="hidden" name="item_id" id="itemId">
+            <div class="form-grid">
+                {% for field in form %}
+                    {% if field.field.widget.input_type == 'checkbox' %}
+                        <div class="form-group form-group-checkbox">
+                            {{ field }}
+                            {{ field.label_tag }}
+                            {% if field.errors %}<div class="error-messages">{{ field.errors }}</div>{% endif %}
+                        </div>
+                    {% elif field.field.widget.recache_instance or field.field.widget.attrs.rows or 'textarea' in field.field.widget.template_name %}
+                        <div class="form-group full-width">
+                            {{ field.label_tag }}
+                            {{ field }}
+                            {% if field.help_text %}<small class="help-text">{{ field.help_text }}</small>{% endif %}
+                            {% if field.errors %}<div class="error-messages">{{ field.errors }}</div>{% endif %}
+                        </div>
+                    {% else %}
+                        <div class="form-group">
+                            {{ field.label_tag }}
+                            {{ field }}
+                            {% if field.help_text %}<small class="help-text">{{ field.help_text }}</small>{% endif %}
+                            {% if field.errors %}<div class="error-messages">{{ field.errors }}</div>{% endif %}
+                        </div>
+                    {% endif %}
+                {% endfor %}
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+                <button type="submit" class="btn"><svg class="icon"><use href="#i-save"/></svg> Save Changes</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    window.RECORDS = {
+        createUrl: "{% url 'indvi_models' model_name=model_name %}",
+        updateUrl: "{% url 'indvi_models_update' model_name=model_name id=999999 %}",
+        deleteUrl: "{% url 'indvi_models_delete' model_name=model_name id=999999 %}",
+        mediaUrl: "{{ MEDIA_URL|default:'/media/'|escapejs }}",
+        // form field names, in the same order as the table columns after ID
+        fieldNames: [{% for field in form %}"{{ field.html_name|escapejs }}"{% if not forloop.last %}, {% endif %}{% endfor %}],
+        showModal: {{ show_modal|yesno:"true,false" }},
+        editPk: "{% if is_editing and form.instance.pk %}{{ form.instance.pk|escapejs }}{% endif %}"
+    };
+</script>
+<script src="{% static 'records.js' %}"></script>

@@ -1,0 +1,46 @@
+{% comment %}
+    Table body for the generic record table (used by subpage.html).
+    Context: rows, fields, model_name, MEDIA_URL. Optional: tbody_id (default "tableBody").
+    Each row is [pk, field1, ...]; cells carry data-cell-value so records.js can fill the edit popup.
+{% endcomment %}
+<tbody id="{{ tbody_id|default:'tableBody' }}">
+    {% for row in rows %}
+    <tr class="table-row" onclick="openEditModal(this, '{{ row.0 }}','{{row.1}}')">
+        {% for val in row|slice:"1:" %}
+        <td data-cell-value="{{ val }}">
+            {% with val_str=val|stringformat:"s" %}
+                {% if ".pdf" in val_str or ".png" in val_str or ".jpg" in val_str or ".jpeg" in val_str or ".docx" in val_str or ".zip" in val_str %}
+                <a href="{{ MEDIA_URL }}{{ val }}" target="_blank" class="file-link" style='color:white;' onclick="event.stopPropagation();">View File</a>
+                {% elif val_str == 'True' %}
+                    Yes
+                {% elif val_str == 'False' %}
+                    No
+                {% else %}
+                    {{ val|truncatechars:18 }}
+                {% endif %}
+            {% endwith %}
+        </td>
+        {% endfor %}
+        <td style="text-align: right;" onclick="event.stopPropagation();">
+            <button class="action-icon edit-btn" title="Edit"
+                onclick="openEditModal(this.closest('tr'), '{{ row.0 }}','{{row.1}}');">
+                <svg class="icon"><use href="#i-pen"/></svg>
+            </button>
+            <form action="{% url 'indvi_models_delete' model_name=model_name id=row.0 %}" method="post" style="display: inline;"onsubmit="return confirm('Are you sure you want to delete this record?');">
+                {% csrf_token %}
+                <button type="submit" class="action-icon delete-btn" title="Delete"
+                    style="background: none; border: none; cursor: pointer; padding: 0;">
+                    <svg class="icon"><use href="#i-trash"/></svg>
+                </button>
+            </form>
+        </td>
+    </tr>
+    {% empty %}
+    <tr class="table-row">
+        <td colspan="{{ fields|length }}"
+            style="text-align: center; padding: 32px; color: var(--text-secondary);">
+            No records found. Click <strong>"Add New Record"</strong> to create one.
+        </td>
+    </tr>
+    {% endfor %}
+</tbody>
