@@ -1,7 +1,8 @@
-from django.db import models
+from django.db import models, transaction,IntegrityError
 from django.core.validators import *
 from django.utils import timezone
 from django.contrib.auth.models import User
+from django.core.exceptions import ValidationError
 
 # Create your models here.
 
@@ -26,10 +27,10 @@ class Certificate(models.Model):
         super().save(*args, **kwargs) 
 
     def delete(self, *args, **kwargs):
-        # Delete the file from storage if it exists
+        # Delete the file from storage when the model instance is deleted
         if self.Proof:
             self.Proof.delete(save=False)
-        super().delete(*args, **kwargs)
+        super().delete(*args, **kwargs)    
 
     def __str__(self):
         return f'{self.Title} by {self.Provider}'
@@ -58,21 +59,48 @@ class DailyJournel(models.Model):
     Journel = models.TextField(blank=False,verbose_name='Journel')
     User = models.ForeignKey(User,on_delete=models.CASCADE,verbose_name='User',editable=False)
     def __str__(self):
-        return self.Date 
+        return f'On {self.Date} - {self.One_word_to_describe_the_day} By {self.User}' 
     
     class Meta:
         verbose_name_plural = "Daily Journels"
 
 class SiteDiscovery(models.Model):
-    Title = models.CharField(max_length=200,blank=False,verbose_name='Site Name')
-    Site_url = models.URLField(max_length=1000,blank=False, unique=True,verbose_name='Site URL')
-    description = models.TextField(blank=True,verbose_name='Description')
-    discovered_on = models.DateField(default=timezone.localdate,validators=[MaxValueValidator(timezone.localdate)],verbose_name='Discovered On')
-    User = models.ForeignKey(User,on_delete=models.CASCADE,verbose_name='User',editable=False)
+  Title = models.CharField(max_length=200, blank=False, verbose_name="Site Name")
+  Site_url = models.URLField(max_length=1000, blank=False, verbose_name="Site URL")
+  description = models.TextField(blank=True, verbose_name="Description")
+  discovered_on = models.DateField(default=timezone.localdate,validators=[MaxValueValidator(timezone.localdate)],verbose_name="Discovered On",)
+  User = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name="User", editable=False)
 
-    def __str__(self):
-        return self.Title 
-    
-    class Meta:
-        verbose_name_plural = "Sites Discovery"
-    
+  def __str__(self):
+    return f"{self.Title} --> for {self.description[0:50]}..."
+
+  def clean(self):
+    super().clean()
+    # Check if a record with the same User and Site_url already exists (excluding current object if updating)
+    if self.User_id and self.Site_url:
+      query = SiteDiscovery.objects.filter(User=self.User, Site_url=self.Site_url)
+      if self.pk:
+        query = query.exclude(pk=self.pk)
+
+      if query.exists():
+        raise ValidationError({"Site_url": "You have already added this Site URL."})
+
+  def save(self, *args, **kwargs):
+        # Run clean() to catch validation errors beforehand
+        # self.clean()
+        self.full_clean()
+        
+        try:
+            # Wrap in an atomic savepoint to prevent breaking the transaction if a DB collision occurs
+            with transaction.atomic():
+                super().save(*args, **kwargs)
+        except IntegrityError:
+            raise ValidationError()
+
+  class Meta:
+    verbose_name_plural = "Sites Discovery"
+    constraints = [
+        models.UniqueConstraint(
+            fields=["User", "Site_url"], name="unique_user_site_url"
+        )
+    ]

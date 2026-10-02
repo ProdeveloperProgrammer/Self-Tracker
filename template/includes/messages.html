@@ -1,0 +1,61 @@
+<style>
+    /* Alerts */
+    .alert-container {
+        margin-bottom: 24px;
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        width: 100%;
+    }
+
+    .alert-card {
+        padding: 14px 18px;
+        border-radius: 10px;
+        font-size: 0.9rem;
+        border: 1px solid var(--border-color);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+
+    .alert-card.error {
+        background: rgba(239, 68, 68, 0.1);
+        border-color: rgba(239, 68, 68, 0.2);
+        color: var(--danger-color);
+    }
+    .alert-card.info {
+        background: rgba(253, 238, 28, 0.1);
+        border-color: rgba(251, 203, 59, 0.2);
+        color: rgb(253, 253, 253);
+    }
+
+    .alert-card.success {
+        background: rgba(16, 185, 129, 0.1);
+        border-color: rgba(16, 185, 129, 0.2);
+        color: var(--success-color);
+    }
+
+    #Hideerror {
+        animation: hideAnimation 0s ease-in 5s forwards;
+        animation-fill-mode: forwards;
+    }
+
+    @keyframes hideAnimation {
+        to {
+            visibility: hidden;
+            width: 0;
+            height: 0;
+        }
+    }
+</style>
+<!-- Messages Banner -->
+{% if messages %}
+<div class="alert-container" id="Hideerror">
+    {% for message in messages %}
+    <div
+        class="alert-card {% if message.tags == 'error' %}error{% elif message.tags == 'warning' %}warning{% elif message.tags == 'info' %}info{% else %}success{% endif %}">
+        <span>{{ message }}</span>
+    </div>
+    {% endfor %}
+</div>
+{% endif %}

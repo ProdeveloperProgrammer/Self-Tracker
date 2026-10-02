@@ -8,164 +8,33 @@
     <title>{{ model_name|default:"Tracker Details" }} - Trackers Hub</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="{% static 'style.css' %}">
+    <link rel="stylesheet" href="{% static 'subpage.css' %}">
 
     <style>
         /* Centered Popup Modal Overrides */
-        .modal-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100vw;
-            height: 100vh;
-            background: rgba(0, 0, 0, 0.65);
-            backdrop-filter: blur(4px);
-            z-index: 1000;
-            display: none;
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
-            box-sizing: border-box;
-        }
-
-        .modal-overlay.active {
-            display: flex;
-        }
-
-        .modal-fullscreen {
-            width: 100%;
-            max-width: 750px;
-            max-height: 90vh;
-            background: var(--bg-color);
-            border: 1px solid var(--border-color);
-            border-radius: 16px;
-            padding: 32px;
-            box-sizing: border-box;
-            display: flex;
-            flex-direction: column;
-            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.4), 0 10px 10px -5px rgba(0, 0, 0, 0.2);
-            overflow-y: auto;
-        }
-
-        .modal-fullscreen .modal-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding-bottom: 20px;
-            border-bottom: 1px solid var(--border-color);
-            margin-bottom: 24px;
-        }
-
-        .modal-fullscreen .modal-header h2 {
-            font-size: 1.4rem;
-            font-weight: 700;
-        }
-
-        .close-btn {
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid var(--border-color);
-            color: var(--text-primary);
-            width: 38px;
-            height: 38px;
-            border-radius: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            font-size: 1rem;
-            transition: all 0.2s ease;
-        }
-
-        .close-btn:hover {
-            border-color: var(--accent-color);
-            color: var(--accent-color);
-        }
-
-        /* Responsive Form Grid Inside Popup */
-        .form-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-            gap: 20px;
-            flex: 1;
-        }
-
-        .full-width {
-            grid-column: 1 / -1;
-        }
-
-        .modal-fullscreen .modal-footer {
-            position: sticky;
-            bottom: 0;
-            background: var(--bg-color);
-            padding-top: 20px;
-            margin-top: 24px;
-            border-top: 1px solid var(--border-color);
-            display: flex;
-            justify-content: flex-end;
-            gap: 12px;
-        }
-
-        .table-row {
-            cursor: pointer;
-            transition: background 0.15s ease;
-        }
-
-        .table-row:hover {
-            background-color: rgba(99, 102, 241, 0.06) !important;
-        }
-
-        @media (max-width: 768px) {
-            .modal-fullscreen {
-                padding: 20px;
-                max-height: 95vh;
-            }
-
-            .form-grid {
-                grid-template-columns: 1fr;
-            }
-        }
+        
     </style>
 </head>
-
-<body>
-
-    <header class="top-header">
-        <div class="brand">
-            <a href="{% url 'index' %}" class="back-btn">
-                <i class="fas fa-arrow-left"></i> Back to Hub
-            </a>
-        </div>
-
-        <h2 class="header-title">{{ model_name }}</h2>
-
-        <div class="header-actions">
-            <div class="search-bar">
-                <i class="fas fa-search"></i>
-                <input type="text" id="searchInput" placeholder="Filter entries..." onkeyup="filterTable()">
-            </div>
-            <button class="theme-toggle" onclick="toggleTheme()" aria-label="Toggle Theme">
-                <i class="fas fa-moon" id="themeIcon"></i>
-            </button>
-            {% include "includes/user_dropdown.html" %}
-        </div>
-    </header>
-
+<body{% if page_obj %} data-server-search{% endif %}>
+    {% include "includes/nav_subpage.html" with page_css="subpage.css" %}
     <main class="main-content">
         <!-- Stats Summary -->
         <div class="stats-grid">
             <div class="stat-card">
                 <div class="stat-title">Total Records</div>
-                <div class="stat-value" id="totalCount">{{ rows|length }}</div>
+                <div class="stat-value" id="totalCount">{% if page_obj %}{{ page_obj.paginator.count }}{% else %}{{ rows|length }}{% endif %}</div>
             </div>
         </div>
 
         <!-- Table Container -->
         <div class="table-container">
             <div class="table-toolbar">
-                <h3 style="font-size: 1.1rem; font-weight: 700;">Records</h3>
-                <button class="btn" onclick="openCreateModal()">
-                    <i class="fas fa-plus"></i> Add New Record
-                </button>
+                <h3 class="table-title">Records</h3>
+                <div class="toolbar-actions">
+                    <button class="btn" type="button" onclick="openCreateModal()">
+                        <svg class="icon"><use href="#i-plus"/></svg> Add New Record
+                    </button>
+                </div>
             </div>
 
             <table id="dataTable">
@@ -174,258 +43,63 @@
                         {% for item in fields %}
                         {% if item != 'ID' %}<th>{{item}}</th>{% endif %}
                         {% endfor %}
-                        <th style="text-align: right;">Actions</th>
+                        <th class="text-right">Actions</th>
                     </tr>
                 </thead>
-                <tbody id="tableBody">
-                    {% for row in rows %}
-                    <tr class="table-row" onclick="openEditModal(this, '{{ row.0 }}','{{row.1}}')">
-                        {% for val in row|slice:"1:" %}
-                        <td data-cell-value="{{ val }}">
-                            {% with val_str=val|stringformat:"s" %}
-                                {% if ".pdf" in val_str or ".png" in val_str or ".jpg" in val_str or ".jpeg" in val_str or ".docx" in val_str or ".zip" in val_str %}
-                                <a href="{{ MEDIA_URL }}{{ val }}" target="_blank" class="file-link" style='color:white;' onclick="event.stopPropagation();">View File</a>
-                                {% elif val_str == 'True' %}
-                                    Yes
-                                {% elif val_str == 'False' %}
-                                    No
-                                {% else %}
-                                    {{ val|truncatechars:18 }}
-                                {% endif %}
-                            {% endwith %}
-                        </td>
-                        {% endfor %}
-                        <td style="text-align: right;" onclick="event.stopPropagation();">
-                            <button class="action-icon edit-btn" title="Edit"
-                                onclick="openEditModal(this.closest('tr'), '{{ row.0 }}','{{row.1}}');">
-                                <i class="fas fa-pen"></i>
-                            </button>
-                            <form action="{% url 'indvi_models_delete' model_name=model_name id=row.0 %}" method="post"
-                                style="display: inline;"
-                                onsubmit="return confirm('Are you sure you want to delete this record?');">
-                                {% csrf_token %}
-                                <button type="submit" class="action-icon delete-btn" title="Delete"
-                                    style="background: none; border: none; cursor: pointer; padding: 0;">
-                                    <i class="fas fa-trash"></i>
-                                </button>
-                            </form>
-                        </td>
-                    </tr>
-                    {% empty %}
-                    <tr class="table-row">
-                        <td colspan="{{ fields|length }}"
-                            style="text-align: center; padding: 32px; color: var(--text-secondary);">
-                            No records found. Click <strong>"Add New Record"</strong> to create one.
-                        </td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
+                {% include "includes/table_body.html" %}
             </table>
+
+            {% if page_obj and page_obj.paginator.num_pages > 1 %}
+            <div class="table-pagination">
+                <span>Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
+                <div class="pager">
+                    {% if page_obj.has_previous %}
+                    <a class="btn btn-secondary" href="?page=1{% if request.GET.q %}&amp;q={{ request.GET.q|urlencode }}{% endif %}">First</a>
+                    <a class="btn btn-secondary" href="?page={{ page_obj.previous_page_number }}{% if request.GET.q %}&amp;q={{ request.GET.q|urlencode }}{% endif %}">Previous</a>
+                    {% else %}
+                    <span class="btn btn-secondary is-disabled">First</span>
+                    <span class="btn btn-secondary is-disabled">Previous</span>
+                    {% endif %}
+                    {% if page_obj.has_next %}
+                    <a class="btn btn-secondary" href="?page={{ page_obj.next_page_number }}{% if request.GET.q %}&amp;q={{ request.GET.q|urlencode }}{% endif %}">Next</a>
+                    <a class="btn btn-secondary" href="?page={{ page_obj.paginator.num_pages }}{% if request.GET.q %}&amp;q={{ request.GET.q|urlencode }}{% endif %}">Last</a>
+                    {% else %}
+                    <span class="btn btn-secondary is-disabled">Next</span>
+                    <span class="btn btn-secondary is-disabled">Last</span>
+                    {% endif %}
+                </div>
+            </div>
+            {% endif %}
         </div>
     </main>
 
-    <!-- Full-Screen Record Popup Modal -->
-    <div class="modal-overlay" id="modalOverlay">
-        <div class="modal-fullscreen">
-            <div class="modal-header">
-                <h2 id="modalTitle">Add New Entry</h2>
-                <button class="close-btn" onclick="closeModal()" aria-label="Close Modal">
-                    <i class="fas fa-times"></i>
-                </button>
-            </div>
-
-            <form method="POST" action="" id="recordForm" enctype="multipart/form-data">
-                {% csrf_token %}
-
-                <input type="hidden" name="item_id" id="itemId">
-
-                <div class="form-grid">
-                    {% for field in form %}
-                        {% if field.field.widget.input_type == 'checkbox' %}
-                            <!-- Checkbox Field Layout -->
-                            <div class="form-group form-group-checkbox">
-                                {{ field }}
-                                {{ field.label_tag }}
-                                {% if field.errors %}
-                                    <div class="error-messages">{{ field.errors }}</div>
-                                {% endif %}
-                            </div>
-                        {% elif field.field.widget.recache_instance or field.field.widget.attrs.rows or 'textarea' in field.field.widget.template_name %}
-                            <!-- Textarea / Big Text Field Layout (Full-width) -->
-                            <div class="form-group full-width">
-                                {{ field.label_tag }}
-                                {{ field }}
-                                {% if field.help_text %}
-                                    <small class="help-text">{{ field.help_text }}</small>
-                                {% endif %}
-                                {% if field.errors %}
-                                    <div class="error-messages">{{ field.errors }}</div>
-                                {% endif %}
-                            </div>
-                        {% else %}
-                            <!-- Standard Input Field Layout -->
-                            <div class="form-group">
-                                {{ field.label_tag }}
-                                {{ field }}
-                                {% if field.help_text %}
-                                <small class="help-text">{{ field.help_text }}</small>
-                                {% endif %}
-                                {% if field.errors %}
-                                <div class="error-messages">{{ field.errors }}</div>
-                                {% endif %}
-                            </div>
-                        {% endif %}
-                    {% endfor %}
-                </div>
-
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" onclick="closeModal()">Cancel</button>
-                    <button type="submit" class="btn"><i class="fas fa-save"></i> Save Changes</button>
-                </div>
-            </form>
-        </div>
-    </div>
+    {% include "includes/record_modal.html" %}
 
     <script>
-        // Store base Django route patterns for Create and Update
-        const CREATE_URL = "{% url 'indvi_models' model_name=model_name %}";
-        const UPDATE_URL_PATTERN = "{% url 'indvi_models_update' model_name=model_name id=999999 %}";
 
-        // Client-side table search filter
-        function filterTable() {
-            const query = document.getElementById('searchInput').value.toLowerCase();
-            const rows = document.querySelectorAll('#tableBody .table-row');
+        // Header search: instant filter of the rows on this page (debounced, text cached once).
+        // When the view is paginated, Enter searches ALL records via ?q=
+        (function () {
+            const input = document.getElementById('searchInput');
+            const rows = Array.from(document.querySelectorAll('#tableBody .table-row'));
+            rows.forEach(r => { r._t = r.textContent.toLowerCase(); });
 
-            rows.forEach(row => {
-                const text = row.innerText.toLowerCase();
-                row.style.display = text.includes(query) ? '' : 'none';
-            });
-        }
+            if (input) {
+                input.addEventListener('input', debounce(function () {
+                    const q = input.value.toLowerCase();
+                    rows.forEach(r => { r.style.display = r._t.includes(q) ? '' : 'none'; });
+                }, 120));
 
-        // Full-Screen Modal Handlers
-        // Store MEDIA_URL passed from Django context
-        const MEDIA_URL = "{{ MEDIA_URL|default:'/media/' }}";
-
-        function openCreateModal() {
-            const form = document.getElementById('recordForm');
-            form.action = CREATE_URL;
-
-            document.getElementById('modalTitle').innerText = 'Add New Record';
-            document.getElementById('itemId').value = '';
-            form.reset();
-
-            // Clear any existing file previews
-            document.querySelectorAll('.current-file-info').forEach(el => el.remove());
-
-            document.getElementById('modalOverlay').classList.add('active');
-            document.body.style.overflow = 'hidden';
-        }
-        function parseTimeToHHMM(rawVal) { //Claude Help
-            if (!rawVal) return '';
-
-            // Matches "10:40 p.m.", "10:40 pm", "10:40PM", "22:40", "10:40:00 a.m." etc.
-            const match = rawVal.match(/(\d{1,2}):(\d{2})(?::(\d{2}))?\s*(a\.?m\.?|p\.?m\.?)?/i);
-            if (!match) return '';
-
-            let hours = parseInt(match[1], 10);
-            const minutes = match[2];
-            const meridian = match[4] ? match[4].toLowerCase().replace(/\./g, '') : null;
-
-            if (meridian === 'pm' && hours !== 12) {
-                hours += 12;
-            } else if (meridian === 'am' && hours === 12) {
-                hours = 0;
+                input.addEventListener('keydown', function (e) {
+                    if (e.key !== 'Enter' || !('serverSearch' in document.body.dataset)) return;
+                    const url = new URL(window.location.href);
+                    const q = input.value.trim();
+                    if (q) url.searchParams.set('q', q); else url.searchParams.delete('q');
+                    url.searchParams.delete('page');
+                    window.location.href = url.toString();
+                });
             }
-
-            const hh = String(hours).padStart(2, '0');
-            return `${hh}:${minutes}`;
-        }
-        function openEditModal(rowElement, id, name) {
-            const form = document.getElementById('recordForm');
-            form.action = UPDATE_URL_PATTERN.replace('999999', id);
-
-            document.getElementById('modalTitle').innerText = 'Edit Record - ' + name + '';
-            document.getElementById('itemId').value = id;
-
-            // Clear old file previews before mapping new ones
-            document.querySelectorAll('.current-file-info').forEach(el => el.remove());
-
-            const cells = rowElement.querySelectorAll('td[data-cell-value]');
-            const formInputs = document.querySelectorAll('#recordForm input:not([type="hidden"]):not([type="csrfmiddlewaretoken"]), #recordForm select, #recordForm textarea');
-
-            cells.forEach((cell, index) => {
-                if (formInputs[index]) {
-                    const rawVal = cell.getAttribute('data-cell-value');
-                    const input = formInputs[index];
-
-                    if (input.type === 'file') {
-                        input.value = ''; // Reset file input selection
-                        input.removeAttribute('required'); // Allow submitting without re-uploading
-                        if (rawVal && rawVal !== 'None' && rawVal !== '') {
-                            const fileName = rawVal.split('/').pop();
-                            const filePreview = document.createElement('div');
-                            filePreview.className = 'current-file-info';
-                            filePreview.style.cssText = 'font-size: 0.82rem; margin-top: 6px; color: var(--text-secondary);';
-                            filePreview.innerHTML = `
-                        📁 Current File: 
-                        <a href="${MEDIA_URL}${rawVal}" target="_blank" style="color: var(--accent-color); font-weight: 600; text-decoration: underline;">
-                            ${fileName}
-                        </a>
-                        <span style="opacity: 0.7;">(Upload a new file only to replace it)</span>
-                    `;
-                            input.parentElement.appendChild(filePreview);
-                        }
-                    }
-                    else if (input.type === 'checkbox') {
-                        input.checked = (rawVal === 'True' || rawVal === 'true');
-                    }
-                    else if (input.type === 'date') {
-                        // Parse whatever format Django renders (e.g. "Sept. 17, 2026") into YYYY-MM-DD
-                        const parsedDate = new Date(rawVal);
-                        if (!isNaN(parsedDate)) {
-                            const year = parsedDate.getFullYear();
-                            const month = String(parsedDate.getMonth() + 1).padStart(2, '0');
-                            const day = String(parsedDate.getDate()).padStart(2, '0');
-                            input.value = `${year}-${month}-${day}`;
-                        } else {
-                            input.value = ''; // don't pass a bad string to a date input
-                        }
-                    }
-                    else if (input.type === 'time') {
-                        // Parse whatever format Django renders (e.g. "10:40 p.m.") into HH:mm (24-hour)
-                        input.value = parseTimeToHHMM(rawVal);
-                    }
-                    else {
-                        input.value = rawVal;
-                    }
-                }
-            });
-
-            document.getElementById('modalOverlay').classList.add('active');
-            document.body.style.overflow = 'hidden';
-        }
-        function closeModal() {
-            document.getElementById('modalOverlay').classList.remove('active');
-            document.body.style.overflow = '';
-        }
-
-        // Close on Escape key
-        document.addEventListener('keydown', function (e) {
-            if (e.key === 'Escape') closeModal();
-        });
-
-        // Dark / Light Theme Toggle
-        function toggleTheme() {
-            const isLight = document.documentElement.classList.toggle('light-mode');
-            document.getElementById('themeIcon').className = isLight ? 'fas fa-sun' : 'fas fa-moon';
-            localStorage.setItem('theme', isLight ? 'light' : 'dark');
-        }
-
-        if (localStorage.getItem('theme') === 'light') {
-            document.documentElement.classList.add('light-mode');
-            document.getElementById('themeIcon').className = 'fas fa-sun';
-        }
+        })();
     </script>
 </body>
-
 </html>

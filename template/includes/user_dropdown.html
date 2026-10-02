@@ -1,178 +1,61 @@
 {% load i18n %}
-
 <style>
-    /* User Dropdown & Auth Actions Component Styles */
-    .user-dropdown-container {
-        position: relative;
-        display: inline-block;
+    /* Self-contained: works whatever version of style.css / app.js is deployed */
+    .user-dropdown-container { position: relative; display: inline-block; }
+    .user-dropdown-container svg {
+        fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round;
+        flex: none; display: inline-block; vertical-align: middle;
     }
-
-    .profile-btn {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        background: rgba(255, 255, 255, 0.05);
-        border: 1px solid var(--border-color, rgba(255, 255, 255, 0.1));
-        padding: 4px 10px 4px 4px;
-        border-radius: 24px;
-        cursor: pointer;
-        transition: background 0.2s, border-color 0.2s;
-        color: var(--text-primary, #ffffff);
+    .user-dropdown-container .profile-btn {
+        display: flex; align-items: center; gap: 8px;
+        background: rgba(255, 255, 255, 0.05); border: 1px solid var(--border-color, rgba(255, 255, 255, 0.08));
+        padding: 4px 10px 4px 4px; border-radius: 24px; cursor: pointer;
+        transition: background-color 0.2s, border-color 0.2s; color: var(--text-primary, #f8fafc); font: inherit;
     }
-
-    .profile-btn:hover {
-        background: rgba(255, 255, 255, 0.1);
-        border-color: var(--accent-color, #6366f1);
+    .user-dropdown-container .profile-btn:hover { background: rgba(255, 255, 255, 0.1); border-color: var(--accent-color, #6366f1); }
+    .user-dropdown-container .profile-img {
+        width: 32px; height: 32px; border-radius: 50%; object-fit: cover;
+        border: 1px solid var(--border-color, rgba(255, 255, 255, 0.08));
     }
-
-    .profile-img {
-        width: 32px;
-        height: 32px;
-        border-radius: 50%;
-        object-fit: cover;
+    .user-dropdown-container .dd-chevron { width: 12px; height: 12px; color: var(--text-secondary, #94a3b8); transition: transform 0.2s; }
+    .user-dropdown-container.active .dd-chevron { transform: rotate(180deg); }
+    .user-dropdown-container .dropdown-menu {
+        position: absolute; top: calc(100% + 10px); right: 0; width: 240px;
+        background: var(--card-bg-default, #1e293b); border: 1px solid var(--border-color, rgba(255, 255, 255, 0.08));
+        border-radius: 12px; box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3); padding: 8px 0;
+        display: none; flex-direction: column; z-index: 1000;
     }
-
-    .dropdown-chevron {
-        font-size: 0.75rem;
-        color: var(--text-secondary, #94a3b8);
-        transition: transform 0.2s;
+    .user-dropdown-container.active .dropdown-menu { display: flex; }
+    .user-dropdown-container .dropdown-header { padding: 10px 16px; border-bottom: 1px solid var(--border-color, rgba(255, 255, 255, 0.08)); margin-bottom: 4px; }
+    .user-dropdown-container .user-name, .user-dropdown-container .user-email { display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .user-dropdown-container .user-name { font-weight: 600; font-size: 0.9rem; color: var(--text-primary, #f8fafc); }
+    .user-dropdown-container .user-email { font-size: 0.75rem; color: var(--text-secondary, #94a3b8); }
+    .user-dropdown-container .dropdown-item {
+        display: flex; align-items: center; gap: 10px; padding: 10px 16px; font-size: 0.85rem;
+        color: var(--text-primary, #f8fafc); text-decoration: none; transition: background-color 0.2s, color 0.2s;
     }
+    .user-dropdown-container .dropdown-item svg { width: 16px; height: 16px; color: var(--text-secondary, #94a3b8); }
+    .user-dropdown-container .dropdown-item:hover { background: rgba(99, 102, 241, 0.12); color: var(--accent-color, #6366f1); }
+    .user-dropdown-container .dropdown-item:hover svg { color: var(--accent-color, #6366f1); }
+    .user-dropdown-container .dropdown-divider { height: 1px; background: var(--border-color, rgba(255, 255, 255, 0.08)); margin: 6px 0; }
+    .user-dropdown-container .dropdown-item.logout, .user-dropdown-container .dropdown-item.logout svg { color: var(--danger-color, #ef4444); }
+    .user-dropdown-container .dropdown-item.logout:hover { background: rgba(239, 68, 68, 0.1); }
 
-    .user-dropdown-container.active .dropdown-chevron {
-        transform: rotate(180deg);
-    }
-
-    .dropdown-menu {
-        position: absolute;
-        top: calc(100% + 10px);
-        right: 0;
-        width: 240px;
-        background: var(--card-bg-default, #1e293b);
-        border: 1px solid var(--border-color, rgba(255, 255, 255, 0.1));
-        border-radius: 12px;
-        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
-        padding: 8px 0;
-        display: none;
-        flex-direction: column;
-        z-index: 1000;
-        backdrop-filter: blur(12px);
-    }
-
-    .user-dropdown-container.active .dropdown-menu {
-        display: flex;
-    }
-
-    .dropdown-header {
-        padding: 10px 16px;
-        border-bottom: 1px solid var(--border-color, rgba(255, 255, 255, 0.1));
-        margin-bottom: 4px;
-    }
-
-    .user-name {
-        font-weight: 600;
-        font-size: 0.9rem;
-        color: var(--text-primary, #ffffff);
-        display: block;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-    }
-
-    .user-email {
-        font-size: 0.75rem;
-        color: var(--text-secondary, #94a3b8);
-        display: block;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-    }
-
-    .dropdown-item {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        padding: 10px 16px;
-        font-size: 0.85rem;
-        color: var(--text-primary, #e2e8f0);
-        text-decoration: none;
-        transition: background 0.2s, color 0.2s;
-    }
-
-    .dropdown-item i {
-        width: 16px;
-        text-align: center;
-        color: var(--text-secondary, #94a3b8);
-    }
-
-    .dropdown-item:hover {
-        background: rgba(99, 102, 241, 0.12);
-        color: var(--accent-color, #6366f1);
-    }
-
-    .dropdown-item:hover i {
-        color: var(--accent-color, #6366f1);
-    }
-
-    .dropdown-divider {
-        height: 1px;
-        background: var(--border-color, rgba(255, 255, 255, 0.1));
-        margin: 6px 0;
-    }
-
-    .dropdown-item.logout {
-        color: #ef4444;
-    }
-
-    .dropdown-item.logout i {
-        color: #ef4444;
-    }
-
-    .dropdown-item.logout:hover {
-        background: rgba(239, 68, 68, 0.1);
-    }
-
-    .auth-actions {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-    }
-
+    .auth-actions { display: flex; align-items: center; gap: 10px; }
     .btn-auth {
-        padding: 8px 16px;
-        border-radius: 8px;
-        font-size: 0.85rem;
-        font-weight: 600;
-        text-decoration: none;
-        transition: all 0.2s;
+        padding: 8px 16px; border-radius: 8px; font-size: 0.85rem; font-weight: 600; text-decoration: none;
+        transition: background-color 0.2s, border-color 0.2s, color 0.2s, opacity 0.2s;
     }
-
-    .btn-signin {
-        color: var(--text-primary, #ffffff);
-        background: transparent;
-        border: 1px solid var(--border-color, rgba(255, 255, 255, 0.2));
-    }
-
-    .btn-signin:hover {
-        border-color: var(--accent-color, #6366f1);
-        color: var(--accent-color, #6366f1);
-    }
-
-    .btn-signup {
-        background: var(--accent-color, #6366f1);
-        color: #ffffff;
-        border: 1px solid transparent;
-    }
-
-    .btn-signup:hover {
-        opacity: 0.9;
-    }
+    .btn-signin { color: var(--text-primary, #f8fafc); background: transparent; border: 1px solid var(--border-color, rgba(255, 255, 255, 0.08)); }
+    .btn-signin:hover { border-color: var(--accent-color, #6366f1); color: var(--accent-color, #6366f1); }
+    .btn-signup { background: var(--accent-color, #6366f1); color: #ffffff; border: 1px solid transparent; }
+    .btn-signup:hover { opacity: 0.9; }
 </style>
-
 {% if request.user.is_authenticated %}
 <div class="user-dropdown-container" id="userDropdown">
-    <button class="profile-btn" onclick="toggleUserDropdown(event)">
-        <img src="https://ui-avatars.com/api/?name={{ request.user.username }}&background=6366f1&color=fff" class="profile-img" alt="{{ request.user.username }}">
-        <i class="fas fa-chevron-down dropdown-chevron"></i>
+    <button class="profile-btn" type="button" aria-haspopup="true" aria-label="Account menu">
+        <img src="https://ui-avatars.com/api/?name={{ request.user.username|urlencode }}&background=6366f1&color=fff" class="profile-img" alt="{{ request.user.username }}" width="32" height="32">
+        <svg class="dd-chevron" width="12" height="12" viewBox="0 0 24 24" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg>
     </button>
     <div class="dropdown-menu">
         <div class="dropdown-header">
@@ -181,45 +64,39 @@
                 <span class="user-email">{{ request.user.email }}</span>
             {% endif %}
         </div>
-        
         {% url 'account_email' as email_url %}
         {% if email_url %}
         <a href="{{ email_url }}" class="dropdown-item">
-            <i class="fas fa-envelope"></i>
+            <svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
             <span>{% trans "Change Email" %}</span>
         </a>
         {% endif %}
-
         {% url 'account_change_password' as password_url %}
         {% if password_url %}
         <a href="{{ password_url }}" class="dropdown-item">
-            <i class="fas fa-key"></i>
+            <svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/></svg>
             <span>{% trans "Change Password" %}</span>
         </a>
         {% endif %}
-
         {% url 'mfa_index' as mfa_url %}
         {% if mfa_url %}
         <a href="{{ mfa_url }}" class="dropdown-item">
-            <i class="fas fa-shield-alt"></i>
+            <svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
             <span>{% trans "Two-Factor Auth" %}</span>
         </a>
         {% endif %}
-
         {% url 'usersessions_list' as sessions_url %}
         {% if sessions_url %}
         <a href="{{ sessions_url }}" class="dropdown-item">
-            <i class="fas fa-desktop"></i>
+            <svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
             <span>{% trans "Active Sessions" %}</span>
         </a>
         {% endif %}
-
         <div class="dropdown-divider"></div>
-
         {% url 'account_logout' as logout_url %}
         {% if logout_url %}
         <a href="{{ logout_url }}" class="dropdown-item logout">
-            <i class="fas fa-sign-out-alt"></i>
+            <svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
             <span>{% trans "Sign Out" %}</span>
         </a>
         {% endif %}
@@ -231,7 +108,6 @@
     {% if login_url %}
     <a href="{{ login_url }}" class="btn-auth btn-signin">{% trans "Sign In" %}</a>
     {% endif %}
-
     {% url 'account_signup' as signup_url %}
     {% if signup_url %}
     <a href="{{ signup_url }}" class="btn-auth btn-signup">{% trans "Sign Up" %}</a>
@@ -240,21 +116,17 @@
 {% endif %}
 
 <script>
-    // Self-contained Dropdown Toggle Logic
-    if (typeof toggleUserDropdown !== 'function') {
-        function toggleUserDropdown(event) {
-            event.stopPropagation();
-            const container = document.getElementById('userDropdown');
-            if (container) {
-                container.classList.toggle('active');
-            }
-        }
-
-        window.addEventListener('click', function(e) {
-            const container = document.getElementById('userDropdown');
-            if (container && !container.contains(e.target)) {
-                container.classList.remove('active');
-            }
+    (function () {
+        var box = document.getElementById('userDropdown');
+        if (!box) return;
+        // The button handles its own click and stops it, so this never double-toggles
+        // even if another script (app.js) also listens on the document.
+        box.querySelector('.profile-btn').addEventListener('click', function (e) {
+            e.stopPropagation();
+            box.classList.toggle('active');
         });
-    }
+        document.addEventListener('click', function (e) {
+            if (!box.contains(e.target)) box.classList.remove('active');
+        });
+    })();
 </script>

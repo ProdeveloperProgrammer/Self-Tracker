@@ -9,6 +9,7 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{% static 'style.css' %}">
+    <script src="{% static 'app.js' %}"></script>
 </head>
 <body>
 
@@ -37,11 +38,9 @@
         </div>
 
         <div class="modules-grid" id="modulesGrid">
-            {% for app in appli %}
-            <a href="app/{{app}}" 
-               class="tracker-card" 
-               data-title="{{ app }}">
-                <div class="card-title">{{ app|slice:"0:14"}}</div>
+            {% for key,value in appli.items %}
+            <a href="app/{{value}}" class="tracker-card" data-title="{{key}}">
+                <div class="card-title">{{ key|slice:"0:15"|capfirst }}</div>
                 <div class="card-footer">
                     <i class="fas fa-arrow-right card-arrow"></i>
                 </div>

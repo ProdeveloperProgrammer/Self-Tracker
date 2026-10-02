@@ -1,0 +1,37 @@
+{% load static %}
+{% comment %}
+The ONLY place these pages load fonts, style.css, page CSS, app.js and the icon sprite.
+Usage: {% include "includes/nav_subpage.html" with page_css="subpage.css" %}
+{% endcomment %}
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400..800&display=swap">
+<link rel="stylesheet" href="{% static 'style.css' %}">
+{% if page_css %}
+<link rel="stylesheet" href="{% static page_css %}">{% endif %}
+<script src="{% static 'app.js' %}"></script>
+{% include "includes/icons.html" %}
+
+<header class="top-header">
+    <div class="brand">
+        <a href="{% url 'index' %}" class="back-btn">
+            <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e3e3e3">
+                <path d="M240-200h120v-240h240v240h120v-360L480-740 240-560v360Zm-80 80v-480l320-240 320 240v480H520v-240h-80v240H160Zm320-350Z" />
+            </svg> Back to Hub
+        </a>
+    </div>
+
+    <h2 class="header-title">{{ model_name }}</h2>
+
+    <div class="header-actions">
+        <div class="search-bar">
+            <svg class="icon"><use href="#i-search"/></svg>
+            <input type="text" id="searchInput" placeholder="Filter entries..." value="{{ request.GET.q|default:'' }}">
+        </div>
+        <button class="theme-toggle" onclick="toggleTheme()" aria-label="Toggle Theme">
+            <svg class="icon"><use id="themeIcon" href="#i-moon"/></svg>
+        </button>
+        {% include "includes/user_dropdown.html" %}
+    </div>
+</header>
+{% include "includes/messages.html" %}
