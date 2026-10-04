@@ -2,3 +2,5 @@ django
 python-dotenv
 django-allauth
 whitenoise
+django-dbbackup
+django-apscheduler

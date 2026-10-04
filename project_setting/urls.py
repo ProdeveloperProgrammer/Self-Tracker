@@ -19,7 +19,7 @@ from django.urls import path,include
 from django.conf import settings
 from django.conf.urls.static import static
 from django.views.static import serve
-
+from project_setting import backup
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('',include('applications.urls')),
@@ -28,3 +28,5 @@ urlpatterns = [
 
 urlpatterns += static(settings.STATIC_URL)
 urlpatterns += [path('media/<path:path>', serve, {'document_root': settings.MEDIA_ROOT})]
+
+backup.start()

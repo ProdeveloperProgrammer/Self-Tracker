@@ -38,11 +38,15 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-
+    # Allauths
     'allauth',
     'allauth.account',
-
+    #Apps
     "applications.apps.ApplicationsConfig",
+    #Db Backups
+    'dbbackup',
+    'django_apscheduler',
+
 ]
 
 MIDDLEWARE = [
@@ -92,8 +96,20 @@ DATABASES = {
         'NAME': BASE_DIR / 'db.sqlite3',
     }
 }
-
-
+#Backup Settings
+STORAGES = {
+    'dbbackup': {
+        'BACKEND': 'django.core.files.storage.FileSystemStorage',
+        'OPTIONS': {
+            'location': os.path.join(BASE_DIR, 'backup')
+        },
+    },
+    "staticfiles": {
+        "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage",
+    },
+}
+DBBACKUP_HOSTNAME = 'Self Tracker'
+DBBACKUP_CLEANUP_KEEP = 3
 # Password validation
 # https://docs.djangoproject.com/en/6.1/ref/settings/#auth-password-validators
 
